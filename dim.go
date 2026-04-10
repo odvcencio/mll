@@ -15,10 +15,11 @@ const (
 // It is either a literal integer, a symbolic reference to a named dim,
 // or an expression tree over other dims.
 type Dimension struct {
-	Kind   DimKind
-	Value  int64    // valid when Kind == DimKindLiteral
-	Symbol string   // valid when Kind == DimKindSymbol
-	Expr   *DimExpr // valid when Kind == DimKindExpr (defined in dim_expr.go)
+	Kind      DimKind
+	Value     int64    // valid when Kind == DimKindLiteral
+	Symbol    string   // valid when Kind == DimKindSymbol (Go-side name)
+	SymbolIdx uint32   // valid when Kind == DimKindSymbol (string table index)
+	Expr      *DimExpr // valid when Kind == DimKindExpr (defined in dim_expr.go)
 }
 
 // DimLiteral constructs a literal dimension.
