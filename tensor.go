@@ -59,15 +59,3 @@ type Tensor struct {
 	DataSize   uint64      // byte length (set during seal)
 }
 
-// Dimension stub — replaced by dim.go in Task 1.6. Do not build on this; the
-// stub exists only so tensor.go compiles until Task 1.6 lands.
-type Dimension struct {
-	Kind   uint8
-	Symbol string
-	Value  int64
-}
-
-// DimSymbol stub — replaced by the real constructor in dim.go in Task 1.6.
-func DimSymbol(name string) Dimension {
-	return Dimension{Kind: 1, Symbol: name}
-}
