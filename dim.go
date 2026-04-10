@@ -56,8 +56,3 @@ type DimDecl struct {
 	Value int64 // valid when Bound is true
 }
 
-// DimExpr forward-declaration stub. Replaced by dim_expr.go in Task 1.7.
-type DimExpr struct{}
-
-// String stub — real implementation in dim_expr.go.
-func (*DimExpr) String() string { return "" }
