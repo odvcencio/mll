@@ -112,3 +112,36 @@ func readDimensionAt(b []byte, offset, depth int) (Dimension, int, error) {
 		return Dimension{}, 0, fmt.Errorf("mll: invalid dim kind %d", kind)
 	}
 }
+
+// WriteShape encodes a shape (sequence of dimensions) to w.
+// Format: u32 rank + Dimension[rank].
+func WriteShape(w io.Writer, shape []Dimension) error {
+	if err := WriteUint32LE(w, uint32(len(shape))); err != nil {
+		return err
+	}
+	for _, d := range shape {
+		if err := WriteDimension(w, d); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// ReadShape decodes a shape from b. Returns the shape, bytes consumed, and any error.
+func ReadShape(b []byte) ([]Dimension, int, error) {
+	if len(b) < 4 {
+		return nil, 0, fmt.Errorf("mll: shape needs at least 4 bytes")
+	}
+	rank, _ := ReadUint32LE(b[:4])
+	cursor := 4
+	shape := make([]Dimension, rank)
+	for i := uint32(0); i < rank; i++ {
+		d, n, err := ReadDimension(b[cursor:])
+		if err != nil {
+			return nil, 0, err
+		}
+		shape[i] = d
+		cursor += n
+	}
+	return shape, cursor, nil
+}

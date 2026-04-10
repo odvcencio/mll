@@ -79,3 +79,25 @@ func TestDimensionDepthEnforced(t *testing.T) {
 		t.Fatal("expected depth-limit error")
 	}
 }
+
+func TestShapeRoundTrip(t *testing.T) {
+	strg := NewStringTableBuilder()
+	vIdx := strg.Intern("V")
+	dIdx := strg.Intern("D")
+	vDim := DimSymbol("V")
+	vDim.SymbolIdx = vIdx
+	dDim := DimSymbol("D")
+	dDim.SymbolIdx = dIdx
+	shape := []Dimension{vDim, dDim, DimLiteral(64)}
+	var buf bytes.Buffer
+	if err := WriteShape(&buf, shape); err != nil {
+		t.Fatal(err)
+	}
+	got, _, err := ReadShape(buf.Bytes())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 3 {
+		t.Fatalf("rank: got %d", len(got))
+	}
+}
