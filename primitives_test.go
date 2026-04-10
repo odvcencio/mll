@@ -36,3 +36,20 @@ func TestBytes(t *testing.T) {
 		t.Fatalf("Bytes: got %v", b)
 	}
 }
+
+func TestList(t *testing.T) {
+	l := List{Int64(1), Int64(2), String("three")}
+	if len(l) != 3 {
+		t.Fatalf("List len: got %d", len(l))
+	}
+}
+
+func TestMap(t *testing.T) {
+	m := Map{"name": String("test"), "count": Int64(7)}
+	if len(m) != 2 {
+		t.Fatalf("Map len: got %d", len(m))
+	}
+	if m["count"] != Int64(7) {
+		t.Fatalf("Map count: got %v", m["count"])
+	}
+}

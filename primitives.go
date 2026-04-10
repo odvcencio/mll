@@ -53,3 +53,19 @@ type String string
 
 // Bytes is a raw byte blob with no encoding assumptions.
 type Bytes []byte
+
+// Value is the universal interface for any MLL primitive value at the Go API level.
+// All primitive types satisfy Value via empty-interface embedding — this is
+// deliberately loose because the binary encoder uses reflection on Kind() to
+// dispatch to the correct codec. The data model is the source of truth; Go
+// types are views.
+type Value interface {
+	// Kind returns the primitive kind so codecs can dispatch.
+	// Implementations are provided below.
+}
+
+// List is an ordered sequence of values, heterogeneous types allowed.
+type List []any
+
+// Map is a keyed association of strings to values.
+type Map map[string]any
