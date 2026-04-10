@@ -49,11 +49,4 @@ func (d Dimension) String() string {
 	}
 }
 
-// DimDecl is a module-level dimension declaration.
-// Bound dims have a concrete value; free dims are bound at load/entry time.
-type DimDecl struct {
-	Name  string
-	Bound bool  // true if Value is set
-	Value int64 // valid when Bound is true
-}
 
