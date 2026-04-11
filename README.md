@@ -7,3 +7,7 @@ Pronounced "mill." `LLM` backwards, by design.
 ## Status
 
 v1.0 binary core under construction. See implementation plan.
+
+## License
+
+MLL is open source under the Apache License, Version 2.0. See `LICENSE` and `NOTICE`.
