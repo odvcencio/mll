@@ -1,3 +1,4 @@
 .local/
 testdata/*.mllb.tmp
 /mll
+/gen_test_vectors

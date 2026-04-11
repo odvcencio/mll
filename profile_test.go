@@ -30,3 +30,15 @@ func TestProfileRequirements(t *testing.T) {
 		t.Error("checkpoint should require OPTM")
 	}
 }
+
+func TestCustomTagsAreNotForbidden(t *testing.T) {
+	custom := [4]byte{'X', 'B', 'A', 'R'}
+	for _, profile := range []Profile{ProfileSealed, ProfileCheckpoint, ProfileWeightsOnly} {
+		if IsForbidden(profile, custom) {
+			t.Fatalf("custom tag should not be forbidden for profile %d", profile)
+		}
+		if IsRequired(profile, custom) {
+			t.Fatalf("custom tag should not be required for profile %d", profile)
+		}
+	}
+}

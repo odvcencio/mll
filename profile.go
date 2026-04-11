@@ -67,18 +67,32 @@ var profileRules = map[Profile]map[[4]byte]sectionRequirement{
 
 // IsRequired reports whether a section tag is required for the given profile.
 func IsRequired(p Profile, tag [4]byte) bool {
+	if IsCustomTag(tag) {
+		return false
+	}
 	rules, ok := profileRules[p]
 	if !ok {
 		return false
 	}
-	return rules[tag] == requirementRequired
+	requirement, ok := rules[tag]
+	if !ok {
+		return false
+	}
+	return requirement == requirementRequired
 }
 
 // IsForbidden reports whether a section tag is forbidden for the given profile.
 func IsForbidden(p Profile, tag [4]byte) bool {
+	if IsCustomTag(tag) {
+		return false
+	}
 	rules, ok := profileRules[p]
 	if !ok {
 		return false
 	}
-	return rules[tag] == requirementForbidden
+	requirement, ok := rules[tag]
+	if !ok {
+		return false
+	}
+	return requirement == requirementForbidden
 }
