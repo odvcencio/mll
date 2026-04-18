@@ -5,7 +5,7 @@ artifacts. It is designed to package model metadata, tensor declarations, tensor
 bytes, entry points, memory planning hints, optimizer state, and signatures into
 a deterministic sectioned file.
 
-The name is pronounced "mill." It is `LLM` backwards on purpose.
+The name is pronounced "mill."
 
 This repository is the standalone v1.0 Go module for reading, writing, hashing,
 and testing MLL binary artifacts.
