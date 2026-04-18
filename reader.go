@@ -1,6 +1,7 @@
 package mll
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -125,6 +126,9 @@ func ReadFile(path string, opts ...ReadOption) (*Reader, error) {
 	return ReadBytes(data, opts...)
 }
 
+// Header returns the parsed file header.
+func (r *Reader) Header() FileHeader { return r.header }
+
 // Version returns the file's format version.
 func (r *Reader) Version() Version { return r.header.Version }
 
@@ -139,6 +143,15 @@ func (r *Reader) DirectoryEntries() []DirectoryEntry {
 	out := make([]DirectoryEntry, len(r.directory))
 	copy(out, r.directory)
 	return out
+}
+
+// ContentHash returns the sealed content hash for sealed and weights-only
+// artifacts. Checkpoint files do not have a stable content hash.
+func (r *Reader) ContentHash() (Digest, error) {
+	if r.header.Profile != ProfileSealed && r.header.Profile != ProfileWeightsOnly {
+		return Digest{}, errors.New("mll: content hash is only defined for sealed and weights-only profiles")
+	}
+	return SealedContentHash(r.header.Version, r.header.Profile, r.header.Flags, r.directory), nil
 }
 
 // Section returns the body bytes for the section with the given tag.

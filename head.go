@@ -30,7 +30,7 @@ type HeadMetadataEntry struct {
 }
 
 // HeadSection is the HEAD section body.
-// Field semantics match the spec §HEAD Section.
+// Field semantics match the v1.0 HEAD section.
 type HeadSection struct {
 	Name          uint32 // string table index (required)
 	Description   uint32 // string table index (0 = absent)

@@ -8,7 +8,7 @@ import (
 
 // TensorEntry describes one tensor in the TNSR section.
 type TensorEntry struct {
-	NameIdx    uint32   // string table index for tensor name
+	NameIdx    uint32 // string table index for tensor name
 	DType      DType
 	Shape      []uint64
 	BodyOffset uint64 // offset within the TNSR section body (computed by builder)
@@ -140,16 +140,25 @@ func ReadTnsrSection(data []byte) (TnsrSection, error) {
 	cursor := 4
 	s := TnsrSection{Tensors: make([]TensorEntry, count)}
 	for i := uint32(0); i < count; i++ {
+		if cursor+4+1+4 > len(data) {
+			return TnsrSection{}, fmt.Errorf("mll: tnsr tensor %d header truncated", i)
+		}
 		nameIdx, _ := ReadUint32LE(data[cursor:])
 		cursor += 4
 		dtype := DType(data[cursor])
 		cursor += 1
 		rank, _ := ReadUint32LE(data[cursor:])
 		cursor += 4
+		if rank > uint32((len(data)-cursor)/8) {
+			return TnsrSection{}, fmt.Errorf("mll: tnsr tensor %d shape truncated", i)
+		}
 		shape := make([]uint64, rank)
 		for r := uint32(0); r < rank; r++ {
 			shape[r], _ = ReadUint64LE(data[cursor:])
 			cursor += 8
+		}
+		if cursor+8+8+1+3 > len(data) {
+			return TnsrSection{}, fmt.Errorf("mll: tnsr tensor %d metadata truncated", i)
 		}
 		bodyOffset, _ := ReadUint64LE(data[cursor:])
 		cursor += 8

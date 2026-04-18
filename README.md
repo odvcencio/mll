@@ -1,9 +1,9 @@
-# MLL: Machine Learning Language
+# MLL
 
-MLL is a binary interchange format and Go implementation for machine learning
-artifacts. It is designed to package model metadata, tensor declarations, tensor
-bytes, entry points, memory planning hints, optimizer state, and signatures into
-a deterministic sectioned file.
+MLL is a binary interchange format and Go implementation for ML artifacts. It
+packages model metadata, tensor declarations, tensor bytes, entry points, memory
+planning hints, optimizer state, and signatures into a deterministic sectioned
+file.
 
 The name is pronounced "mill."
 
@@ -17,16 +17,20 @@ and testing MLL binary artifacts.
 - 64-byte section directory entries with section tag, offset, size,
   BLAKE3-256 digest, flags, and schema version.
 - Reader and writer APIs for in-memory bytes, files, section lookup, optional
-  digest verification, profile validation, and canonical section ordering.
+  digest verification, semantic validation, and canonical section ordering.
 - Reproducible sealed and weights-only content hashes that ignore layout-only
-  details such as offsets, padding, total file size, and signature bytes.
+  details such as offsets, padding, total file size, `SGNM`, and signature bytes.
 - Encoders and decoders for the core v1.0 sections: `HEAD`, `STRG`, `ENUM`,
   `DIMS`, `TYPE`, `PARM`, `ENTR`, `BUFF`, `KRNL`, `PLAN`, `MEMP`, `TNSR`,
   `OPTM`, `SCHM`, and `SGNM`.
+- Ed25519 signature helpers and verification over sealed content hashes.
+- `mll inspect` for header, directory, digest, content-hash, and validation
+  inspection from the command line.
+- A convenience sealed-artifact builder for simple named tensor bundles.
 - Checkpoint writer support with generation tracking and atomic
   sibling-file-plus-rename saves.
-- Golden v1 test vectors for a minimal file and a representative sealed
-  `tiny_embed` artifact.
+- Golden v1 test vectors for sealed, weights-only, checkpoint, signed, corrupt,
+  and semantically invalid artifacts.
 
 ## Format At A Glance
 
@@ -104,11 +108,43 @@ if body, ok := r.Section(mll.TagTNSR); ok {
     }
     fmt.Println("tensor count:", len(tensors.Tensors))
 }
+
+if err := r.Validate(); err != nil {
+    return err
+}
 ```
 
 Digest verification is optional because callers sometimes need fast metadata
 inspection. Use `WithDigestVerification()` when loading artifacts across a trust
 boundary or before computing sealed content hashes.
+
+Run the same checks from the command line:
+
+```bash
+go run ./cmd/mll inspect model.mllb
+```
+
+## Build A Simple Sealed Artifact
+
+For basic tensor bundles, use the convenience builder instead of manually
+assembling every required section.
+
+```go
+artifact := mll.NewSealedArtifact("tiny_embed")
+artifact.AddDim("D", 384)
+
+weights := make([]byte, 384*4)
+if err := artifact.AddTensor("token_embedding", mll.DTypeF32, []uint64{384}, weights); err != nil {
+    return err
+}
+
+data, contentHash, err := artifact.Marshal()
+if err != nil {
+    return err
+}
+_ = data
+_ = contentHash
+```
 
 ## Write An Artifact
 
@@ -164,6 +200,13 @@ The v1 fixtures live in [`testdata/v1`](testdata/v1):
 - `minimal.mllb` and `minimal.hash`: a small canonicalization fixture.
 - `tiny_embed.mllb` and `tiny_embed.hash`: a representative sealed inference
   artifact with all required sealed sections.
+- `weights_only.mllb` and `weights_only.hash`: a portable weights bundle.
+- `checkpoint_generation.mllb` and `checkpoint_generation.generation`: a
+  checkpoint saved twice with generation tracking.
+- `signed_ed25519.mllb`, `signed_ed25519.hash`, and `signed_ed25519.pub`: a
+  signed sealed artifact with deterministic test key material.
+- `corrupt_digest.mllb`: a file that must fail digest verification.
+- `bad_ref.mllb`: a file that parses but fails semantic validation.
 
 Regenerate them with:
 
@@ -184,13 +227,13 @@ this stage:
 
 - Reader support is limited to MLL major version 1.
 - Sections marked `EXTERNAL` or `COMPRESSED` are rejected by the reader.
-- `SGNM` stores signature metadata and bytes; cryptographic signature
-  verification is not implemented here yet.
-- `SCHM` is accepted as an empty section in v1.0.
-- `KRNL` stores an opaque body so kernel payloads can round-trip while the full
-  kernel DSL remains future work.
+- `SGNM` supports Ed25519 verification over sealed and weights-only content
+  hashes.
+- `SCHM` is accepted as an empty section by the v1.0 core.
+- `KRNL` stores an opaque body so kernel payloads can round-trip without
+  coupling this package to a kernel DSL.
 - Checkpoint saves use full file rewrite plus atomic rename; in-place updates
-  are reserved for a future v1.x optimization.
+  are not part of the v1.0 writer.
 - Quantized tensor byte accounting, especially `DTypeQ4`, is left to higher
   level code.
 
@@ -203,6 +246,7 @@ Primary commands:
 ```bash
 go test ./...
 go run ./cmd/gen_test_vectors
+go run ./cmd/mll inspect ./testdata/v1/tiny_embed.mllb
 ```
 
 The code is Apache-2.0 licensed. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).

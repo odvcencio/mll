@@ -6,7 +6,7 @@ import (
 )
 
 // coreSectionOrder is the fixed canonical order for core sections in sealed
-// and weights-only profiles per spec §Canonicalization.
+// and weights-only profiles.
 var coreSectionOrder = [][4]byte{
 	TagHEAD,
 	TagSTRG,

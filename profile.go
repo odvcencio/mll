@@ -9,7 +9,7 @@ const (
 	requirementRequired
 )
 
-// profileRules maps (profile, section tag) → requirement. Derived from spec §Profiles.
+// profileRules maps (profile, section tag) to requirement.
 // This table is the single source of truth for profile validation.
 var profileRules = map[Profile]map[[4]byte]sectionRequirement{
 	ProfileSealed: {

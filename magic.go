@@ -1,5 +1,7 @@
 package mll
 
+import "fmt"
+
 // Magic is the four-byte identifier at the start of every MLL binary file.
 var Magic = [4]byte{'M', 'L', 'L', 0}
 
@@ -15,6 +17,11 @@ type Version struct {
 	Minor uint8
 }
 
+// String returns the dotted version form.
+func (v Version) String() string {
+	return fmt.Sprintf("%d.%d", v.Major, v.Minor)
+}
+
 // Uint16 returns the 16-bit encoded form (major in high byte, minor in low byte).
 func (v Version) Uint16() uint16 {
 	return uint16(v.Major)<<8 | uint16(v.Minor)
@@ -25,6 +32,20 @@ var V1_0 = Version{Major: 1, Minor: 0}
 
 // Profile identifies the role of an MLL artifact.
 type Profile uint8
+
+// String returns the profile name used in human-readable output.
+func (p Profile) String() string {
+	switch p {
+	case ProfileSealed:
+		return "sealed"
+	case ProfileCheckpoint:
+		return "checkpoint"
+	case ProfileWeightsOnly:
+		return "weights-only"
+	default:
+		return fmt.Sprintf("unknown(%d)", p)
+	}
+}
 
 const (
 	ProfileSealed      Profile = 0x01
@@ -69,4 +90,9 @@ var (
 // IsCustomTag reports whether a tag is in the custom chunk tag space (X***).
 func IsCustomTag(tag [4]byte) bool {
 	return tag[0] == 'X'
+}
+
+// FormatTag returns the printable four-byte section tag.
+func FormatTag(tag [4]byte) string {
+	return string(tag[:])
 }

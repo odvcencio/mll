@@ -40,6 +40,21 @@ func TestSealedContentHashIgnoresSignatureFlag(t *testing.T) {
 	}
 }
 
+func TestSealedContentHashIgnoresSgnmEntry(t *testing.T) {
+	entriesWithoutSignature := []DirectoryEntry{
+		{Tag: TagHEAD, Flags: SectionFlagRequired, SchemaVersion: 1, Digest: Digest{1}},
+	}
+	entriesWithSignature := []DirectoryEntry{
+		{Tag: TagHEAD, Flags: SectionFlagRequired, SchemaVersion: 1, Digest: Digest{1}},
+		{Tag: TagSGNM, SchemaVersion: 1, Digest: Digest{9, 9, 9}},
+	}
+	h1 := SealedContentHash(V1_0, ProfileSealed, 0, entriesWithoutSignature)
+	h2 := SealedContentHash(V1_0, ProfileSealed, FileFlagHasSignature, entriesWithSignature)
+	if h1 != h2 {
+		t.Fatal("sealed content hash changed when SGNM was added")
+	}
+}
+
 func TestSealedContentHashIgnoresMinReaderMinor(t *testing.T) {
 	entries := []DirectoryEntry{
 		{Tag: TagHEAD, Flags: SectionFlagRequired, SchemaVersion: 1, Digest: Digest{1}},

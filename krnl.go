@@ -6,9 +6,8 @@ import (
 	"io"
 )
 
-// KernelDecl is a minimal kernel declaration. The full DSL (tile dims, variants,
-// op bodies) lives in Plan 2+; Plan 1 stores the kernel name and an opaque
-// body byte blob as a placeholder so callers can round-trip a KRNL section.
+// KernelDecl stores a kernel name and opaque body bytes so callers can
+// round-trip a KRNL section without coupling this package to a kernel DSL.
 type KernelDecl struct {
 	NameIdx uint32
 	Body    []byte

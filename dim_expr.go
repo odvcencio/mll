@@ -160,11 +160,8 @@ func foldLiterals(op DimOp, a, b int64) (int64, bool) {
 // dimOrder returns < 0, 0, or > 0 comparing two dims for canonical ordering.
 //
 // Ordering rule: symbols come before literals in the canonical form for both
-// add and multiply. The spec §Canonicalization text says "literals before
-// symbols" but the worked example ("4 + D normalizes to D + 4") puts symbols
-// first. We follow the example. When the spec prose is reconciled, this
-// function may need to flip — the test vector TestDimNormalizeCommutative
-// pins the behavior end to end.
+// add and multiply. The test vector TestDimNormalizeCommutative pins the
+// behavior end to end.
 //
 // Within the same kind:
 //   - Symbols sort by string-table index ascending (falling back to

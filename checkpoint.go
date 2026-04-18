@@ -33,6 +33,7 @@ type Checkpoint struct {
 	path       string
 	opts       CheckpointOptions
 	sections   map[[4]byte]SectionInput
+	order      [][4]byte
 	generation uint64
 }
 
@@ -69,6 +70,9 @@ func NewCheckpoint(path string, opts CheckpointOptions) (*Checkpoint, error) {
 // section's Generation field is overwritten by Save(); callers do not need
 // to track it manually.
 func (c *Checkpoint) SetSection(s SectionInput) {
+	if _, ok := c.sections[s.Tag]; !ok {
+		c.order = append(c.order, s.Tag)
+	}
 	c.sections[s.Tag] = s
 }
 
@@ -113,8 +117,8 @@ func (c *Checkpoint) Save() error {
 		writerOpts = append(writerOpts, WithSkipRequirementCheck())
 	}
 	wr := NewWriter(tmpFile, ProfileCheckpoint, V1_0, writerOpts...)
-	for _, s := range c.sections {
-		wr.AddSection(s)
+	for _, tag := range c.order {
+		wr.AddSection(c.sections[tag])
 	}
 	if err := wr.Finish(); err != nil {
 		tmpFile.Close()
