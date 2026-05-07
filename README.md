@@ -10,6 +10,10 @@ The name is pronounced "mill."
 This repository is the standalone v1.0 Go module for reading, writing, hashing,
 and testing MLL binary artifacts.
 
+## Agent Skill
+
+Agents working with MLL artifacts should use the [using-mll](https://github.com/odvcencio/m31labs-skills/blob/main/skills/using-mll/SKILL.md) skill.
+
 ## What Is Implemented
 
 - Fixed 24-byte file header with `MLL\0` magic, version, profile, flags, file
