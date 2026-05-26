@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/odvcencio/mll"
+	"m31labs.dev/mll"
 )
 
 func main() {

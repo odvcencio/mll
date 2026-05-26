@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/odvcencio/mll"
+	"m31labs.dev/mll"
 )
 
 func main() {
